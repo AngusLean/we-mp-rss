@@ -514,7 +514,7 @@ class WeChatAPI:
 
             response.raise_for_status()
             self.cookies = requests.utils.dict_from_cookiejar(self.session.cookies) if self.session.cookies else {}
-            print(self.cookies)
+            logger.debug("已提取登录 Cookie，数量: %s", len(self.cookies))
             # 从URL或页面内容中提取token
             import re
             token_match = re.search(r'token=([^&\s"\']+)', response.text)

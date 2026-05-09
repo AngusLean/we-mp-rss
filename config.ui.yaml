@@ -1,0 +1,5 @@
+ui:
+  # 隐藏顶部右上角的推广/赞助入口，保留 Views / Docs / Gitee / GitHub 等功能链接
+  show_header_promos: false
+  # 关闭登录后自动弹出的赞助弹窗
+  show_sponsor_modal: false

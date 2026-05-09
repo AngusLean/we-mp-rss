@@ -137,20 +137,22 @@
         <a-link href="/api/docs" target="_blank" style="margin-right: 20px;">Docs</a-link>
         <a-link href="https://gitee.com/rachel_os/we-mp-rss" target="_blank" style="margin-right: 20px;">Gitee</a-link>
         <a-link href="https://github.com/rachelos/we-mp-rss" target="_blank" style="margin-right: 20px;">GitHub</a-link>
-        <a-tooltip content="GitHub或者Google账户注册登录，获得首月5美元奖励。注册180+天的GitHub账户还可以解锁每月5美元的额度赠送。" position="bottom">
-          <a-link href="https://console.run.claw.cloud/signin?link=FJ0VXS42W2P9" target="_blank"
-            style="margin-right: 20px;">ClawCloud</a-link>
-        </a-tooltip>
-        <a-tooltip content="如果您需要部署此项目，建议采用腾讯云服务器，您懂得" position="bottom">
-          <a-link
-            href="https://cloud.tencent.com/act/cps/redirect?redirect=2446&cps_key=f8ce741e7b24cd68141ab2115122ea94&from=console"
-            target="_blank" style="margin-right: 20px;">云部署</a-link>
-        </a-tooltip>
-        <a-tooltip content="您的支持是作者的最大动力，来一杯咖啡吧" position="bottom">
-          <a-link @click="showSponsorModal" style="margin-right: 20px; cursor: pointer;" type="text">支持</a-link>
-        </a-tooltip>
-        <a-link href="https://www.paypal.com/ncp/payment/PUA72WYLAV5KW" target="_blank"
-          style="margin-right: 20px;">赞助</a-link>
+        <template v-if="uiConfig.showHeaderPromos">
+          <a-tooltip content="GitHub或者Google账户注册登录，获得首月5美元奖励。注册180+天的GitHub账户还可以解锁每月5美元的额度赠送。" position="bottom">
+            <a-link href="https://console.run.claw.cloud/signin?link=FJ0VXS42W2P9" target="_blank"
+              style="margin-right: 20px;">ClawCloud</a-link>
+          </a-tooltip>
+          <a-tooltip content="如果您需要部署此项目，建议采用腾讯云服务器，您懂得" position="bottom">
+            <a-link
+              href="https://cloud.tencent.com/act/cps/redirect?redirect=2446&cps_key=f8ce741e7b24cd68141ab2115122ea94&from=console"
+              target="_blank" style="margin-right: 20px;">云部署</a-link>
+          </a-tooltip>
+          <a-tooltip content="您的支持是作者的最大动力，来一杯咖啡吧" position="bottom">
+            <a-link @click="showSponsorModal" style="margin-right: 20px; cursor: pointer;" type="text">支持</a-link>
+          </a-tooltip>
+          <a-link href="https://www.paypal.com/ncp/payment/PUA72WYLAV5KW" target="_blank"
+            style="margin-right: 20px;">赞助</a-link>
+        </template>
 
 
 
@@ -223,7 +225,7 @@
           </div>
         </a-modal>
         <WechatAuthQrcode ref="qrcodeRef" @success="handleQrAuthSuccess" />
-        <a-modal v-model:visible="sponsorVisible" title="感谢支持" :footer="false" :style="{ zIndex: 1000 }" unmount-on-close>
+        <a-modal v-if="uiConfig.showSponsorModal" v-model:visible="sponsorVisible" title="感谢支持" :footer="false" :style="{ zIndex: 1000 }" unmount-on-close>
           <div style="text-align: center;">
             <p>如果您觉得这个项目对您有帮助,请给Rachel来一杯Coffee吧~ </p>
             <img src="@/assets/images/sponsor.jpg" alt="赞赏码" style="max-width: 300px; margin-top: 20px;">
@@ -252,20 +254,56 @@ import { ref,watchEffect, computed, onMounted, watch, provide } from 'vue'
 import { Modal } from '@arco-design/web-vue/es/modal'
 import {getSysInfo} from '@/api/sysInfo'
 const currentLanguage = ref(localStorage.getItem('language') || 'chinese_simplified');
+const SPONSOR_STORAGE_KEY = 'sponsor'
+const uiConfig = ref({
+  showHeaderPromos: false,
+  showSponsorModal: false,
+})
+const sponsorVisible = ref(false)
+let sponsorModalInitialized = false
+
+
+const readSponsorCount = () => {
+  const value = parseInt(localStorage.getItem(SPONSOR_STORAGE_KEY) || '0', 10)
+  return Number.isNaN(value) ? 0 : value
+}
+
+const maybeShowSponsorModal = () => {
+  if (sponsorModalInitialized) {
+    return
+  }
+  sponsorModalInitialized = true
+  if (!uiConfig.value.showSponsorModal) {
+    return
+  }
+  const sponsorCount = readSponsorCount()
+  if (sponsorCount >= 3) {
+    return
+  }
+  sponsorVisible.value = true
+  localStorage.setItem(SPONSOR_STORAGE_KEY, (sponsorCount + 1).toString())
+}
+
+const applyUiConfig = (ui: any) => {
+  uiConfig.value = {
+    showHeaderPromos: ui?.show_header_promos ?? false,
+    showSponsorModal: ui?.show_sponsor_modal ?? false,
+  }
+  maybeShowSponsorModal()
+}
 
 
 const handleLanguageChange = (language: string) => {
   setCurrentLanguage(language);
   currentLanguage.value = language;
 };
-const sponsorCount:number = parseInt(localStorage.getItem('sponsor'))|| 0
-localStorage.setItem('sponsor', (sponsorCount+1).toString())
-const sponsorVisible = ref(sponsorCount<3)
 const showSponsorModal = (e: Event) => {
   e.preventDefault()
+  if (!uiConfig.value.showSponsorModal) {
+    return
+  }
   sponsorVisible.value = true
-  localStorage.setItem('sponsor',"0")
-  console.log('Sponsor modal triggered') // 添加调试日志
+  localStorage.setItem(SPONSOR_STORAGE_KEY,"0")
 }
 import { 
   initBrowserNotification 
@@ -316,9 +354,11 @@ const fetchUserInfo = async () => {
 const fetchSysInfo = async () => {
   try {
     const res = await getSysInfo()
+    applyUiConfig(res?.ui)
     haswxLogined.value = res?.wx?.login||false
     wxLoginInfo.value = res?.wx?.info||null
   } catch (error) {
+    applyUiConfig(null)
     console.error('获取系统信息失败', error)
   }
 }

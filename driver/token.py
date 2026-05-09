@@ -15,6 +15,15 @@ if not os.path.exists(lic_path):
         f.write("{}")
 wx_cfg = Config(lic_path)
 
+
+def mask_token(token: str) -> str:
+    token = str(token or "")
+    if token == "":
+        return "-"
+    if len(token) <= 10:
+        return f"{token[:2]}***"
+    return f"{token[:6]}***{token[-4:]}"
+
 def set_token(data:any,ext_data:any=None):
 
     """
@@ -44,7 +53,7 @@ def set_token(data:any,ext_data:any=None):
     else:
         _save_to_local(token_data)
 
-    print_success(f"Token:{data.get('token')} \n到期时间:{data.get('expiry')['expiry_time']}\n")
+    print_success(f"Token:{mask_token(data.get('token'))} \n到期时间:{data.get('expiry')['expiry_time']}\n")
     from jobs.notice import sys_notice
 
 #     sys_notice(f"""WeRss授权成功
