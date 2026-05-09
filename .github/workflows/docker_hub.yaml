@@ -8,7 +8,7 @@ on:
   workflow_dispatch:  # 支持手动触发
 env:
   REGISTRY: docker.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: anguslean/we-mp-rss
 
 jobs:
   build-and-push-latest:
@@ -39,7 +39,11 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       - name: Log in to GHCR
-        run: echo  ${{secrets.TOKEN}} | docker login ghcr.io -u  ${{github.actor}} --password-stdin
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
