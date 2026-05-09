@@ -1,9 +1,7 @@
-import os
 import platform
 import time
 import sys
 import psutil
-import yaml
 from fastapi import APIRouter,Depends
 from typing import Dict, Any
 from core.auth import get_current_user_or_ak
@@ -22,41 +20,6 @@ def get_docker_version():
 # 记录服务器启动时间
 _START_TIME = time.time()
 
-DEFAULT_UI_CONFIG = {
-    "show_header_promos": True,
-    "show_sponsor_modal": True,
-}
-
-
-def _to_bool(value, default: bool) -> bool:
-    if isinstance(value, bool):
-        return value
-    if isinstance(value, str):
-        lowered = value.strip().lower()
-        if lowered in ("1", "true", "yes", "on"):
-            return True
-        if lowered in ("0", "false", "no", "off"):
-            return False
-    return default
-
-
-def get_ui_config() -> Dict[str, Any]:
-    ui_config = DEFAULT_UI_CONFIG.copy()
-    config_path = cfg.get("server.ui_config_path", os.getenv("WERSS_UI_CONFIG_PATH", "config.ui.yaml"))
-    if not config_path or not os.path.exists(config_path):
-        return ui_config
-
-    try:
-        with open(config_path, "r", encoding="utf-8") as f:
-            extra_config = yaml.safe_load(f) or {}
-        ui_section = extra_config.get("ui", extra_config) if isinstance(extra_config, dict) else {}
-        ui_section = cfg.replace_env_vars(ui_section) if isinstance(ui_section, dict) else {}
-        for key, default in DEFAULT_UI_CONFIG.items():
-            ui_config[key] = _to_bool(ui_section.get(key, default), default)
-    except Exception:
-        pass
-    return ui_config
-
 @router.get("/base_info", summary="常规信息")
 async def get_base_info() -> Dict[str, Any]:
     try:
@@ -70,7 +33,6 @@ async def get_base_info() -> Dict[str, Any]:
             "ui":{
                 "name": cfg.get("server.name",""),
                 "web_name": cfg.get("server.web_name","WeRss公众号订阅平台"),
-                "features": get_ui_config(),
             }
         }
         return success_response(data=base_info)
@@ -160,7 +122,6 @@ async def get_system_info(
             'core_version': CORE_VERSION,
             'latest_version':LATEST_VERSION,
             'need_update':CORE_VERSION != LATEST_VERSION,
-            "ui": get_ui_config(),
             "wx":{
                 'token':get_val('token',''),
                 'expiry_time':get_val('expiry.expiry_time','') if getStatus() else "",
