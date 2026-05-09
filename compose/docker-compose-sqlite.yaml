@@ -1,6 +1,6 @@
 services:
   we-mp-rss:
-    image: ${WE_MP_RSS_IMAGE:-ghcr.io/rachelos/we-mp-rss:latest}
+    image: ${WE_MP_RSS_IMAGE:-ghcr.io/anguslean/we-mp-rss:latest}
     container_name: ${WE_MP_RSS_CONTAINER_NAME:-we-mp-rss}
     restart: unless-stopped
     ports:

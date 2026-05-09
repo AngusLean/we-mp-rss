@@ -42,7 +42,7 @@ services:
       - ./singbox/run-singbox.sh:/etc/sing-box/run-singbox.sh:ro
 
   we-mp-rss:
-    image: ghcr.io/rachelos/we-mp-rss:latest
+    image: ghcr.io/anguslean/we-mp-rss:latest
     container_name: we-mp-rss
     restart: unless-stopped
     env_file:
