@@ -23,6 +23,32 @@ mkdir -p we-mp-rss && cd we-mp-rss && PASSWORD='请改成你的强密码' WE_MP_
 
 访问 `http://<您的ip>:8002/`
 
+## 阿里云 ACR / ACK 私有镜像流程
+
+- 如果你已在阿里云平台完成 GitHub 代码源绑定，后续只需要把代码推到 GitHub，阿里云会自动构建并推送私有镜像
+- 私有镜像地址格式：`registry.cn-<地域>.aliyuncs.com/<命名空间>/we-mp-rss:latest`
+- NAS 上可直接把上面的地址替换进 `WE_MP_RSS_IMAGE`
+
+```bash
+PASSWORD='请改成你的强密码' WE_MP_RSS_IMAGE=registry.cn-<地域>.aliyuncs.com/<命名空间>/we-mp-rss:latest docker compose -f <(curl -fsSL https://raw.githubusercontent.com/AngusLean/we-mp-rss/main/compose/docker-compose-sqlite.yaml) up -d
+```
+
+- ACK 拉取私有镜像前，先创建镜像仓库登录密钥：
+
+```bash
+kubectl create secret docker-registry regsecret \
+  --docker-server=registry.cn-<地域>.aliyuncs.com \
+  --docker-username='<阿里云镜像仓库登录名>' \
+  --docker-password='<阿里云镜像仓库密码>' \
+  -n default
+```
+
+- 然后把 `compose/ack-private-image.yaml` 里的镜像地址、密码、命名空间按你的实际值替换后执行：
+
+```bash
+kubectl apply -f compose/ack-private-image.yaml
+```
+
 ## 快速运行
 
 ```bash

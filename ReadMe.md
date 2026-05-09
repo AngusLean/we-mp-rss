@@ -23,6 +23,32 @@ Push your fork to `main`, wait for GitHub Actions to publish `ghcr.io/AngusLean/
 
 Visit `http://<your-ip>:8002/`
 
+## Alibaba Cloud ACR / ACK Private Image Flow
+
+- If you have already bound your GitHub repository in Alibaba Cloud, pushing code to GitHub will trigger the platform to build and publish the private image automatically
+- Private image format: `registry.cn-<region>.aliyuncs.com/<namespace>/we-mp-rss:latest`
+- On NAS, replace `WE_MP_RSS_IMAGE` with that ACR image address
+
+```bash
+PASSWORD='change-this-password' WE_MP_RSS_IMAGE=registry.cn-<region>.aliyuncs.com/<namespace>/we-mp-rss:latest docker compose -f <(curl -fsSL https://raw.githubusercontent.com/AngusLean/we-mp-rss/main/compose/docker-compose-sqlite.yaml) up -d
+```
+
+- Before ACK pulls the private image, create an image pull secret:
+
+```bash
+kubectl create secret docker-registry regsecret \
+  --docker-server=registry.cn-<region>.aliyuncs.com \
+  --docker-username='<acr-login-name>' \
+  --docker-password='<acr-password>' \
+  -n default
+```
+
+- Then replace the image, password, and namespace values in `compose/ack-private-image.yaml` and apply it:
+
+```bash
+kubectl apply -f compose/ack-private-image.yaml
+```
+
 ## Quick Start
 
 ```bash

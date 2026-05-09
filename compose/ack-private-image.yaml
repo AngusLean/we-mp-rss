@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: we-mp-rss
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: we-mp-rss
+  template:
+    metadata:
+      labels:
+        app: we-mp-rss
+    spec:
+      imagePullSecrets:
+        - name: regsecret
+      containers:
+        - name: we-mp-rss
+          image: registry.cn-hangzhou.aliyuncs.com/<your-namespace>/we-mp-rss:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8001
+              name: http
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+            - name: DB
+              value: sqlite:///data/we_mp_rss.db
+            - name: USERNAME
+              value: admin
+            - name: PASSWORD
+              value: change-this-password
+            - name: AUTO_RELOAD
+              value: "False"
+            - name: PORT
+              value: "8001"
+            - name: PROXY_ENABLED
+              value: "False"
+          volumeMounts:
+            - name: app-data
+              mountPath: /app/data
+      volumes:
+        - name: app-data
+          persistentVolumeClaim:
+            claimName: we-mp-rss-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: we-mp-rss
+  namespace: default
+spec:
+  selector:
+    app: we-mp-rss
+  ports:
+    - name: http
+      port: 8001
+      targetPort: 8001
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: we-mp-rss-data
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
