@@ -9,10 +9,10 @@
 
 NAS 一行 Compose 拉起自己的 GitHub Fork
 ```
-mkdir -p we-mp-rss && cd we-mp-rss && PASSWORD='请改成你的强密码' WE_MP_RSS_IMAGE=ghcr.io/<你的 GitHub 用户名>/we-mp-rss:latest docker compose -f <(curl -fsSL https://raw.githubusercontent.com/<你的 GitHub 用户名>/we-mp-rss/main/compose/docker-compose-sqlite.yaml) up -d
+mkdir -p we-mp-rss && cd we-mp-rss && PASSWORD='请改成你的强密码' WE_MP_RSS_IMAGE=ghcr.io/AngusLean/we-mp-rss:latest docker compose -f <(curl -fsSL https://raw.githubusercontent.com/AngusLean/we-mp-rss/main/compose/docker-compose-sqlite.yaml) up -d
 ```
 
-先把你的 fork 推到 `main`，等待 GitHub Actions 自动发布镜像到 `ghcr.io/<你的 GitHub 用户名>/we-mp-rss:latest`，再执行上面的命令。
+先把你的 fork 推到 `main`，等待 GitHub Actions 自动发布镜像到 `ghcr.io/AngusLean/we-mp-rss:latest`，再执行上面的命令。
 
 - 默认端口是 `8002:8001`
 - 默认使用 `SQLite`，数据目录是当前目录下的 `./data`

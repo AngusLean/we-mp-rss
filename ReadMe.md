@@ -9,10 +9,10 @@
 
 One-line Compose Deploy From Your GitHub Fork
 ```
-mkdir -p we-mp-rss && cd we-mp-rss && PASSWORD='change-this-password' WE_MP_RSS_IMAGE=ghcr.io/<your-github-username>/we-mp-rss:latest docker compose -f <(curl -fsSL https://raw.githubusercontent.com/<your-github-username>/we-mp-rss/main/compose/docker-compose-sqlite.yaml) up -d
+mkdir -p we-mp-rss && cd we-mp-rss && PASSWORD='change-this-password' WE_MP_RSS_IMAGE=ghcr.io/AngusLean/we-mp-rss:latest docker compose -f <(curl -fsSL https://raw.githubusercontent.com/AngusLean/we-mp-rss/main/compose/docker-compose-sqlite.yaml) up -d
 ```
 
-Push your fork to `main`, wait for GitHub Actions to publish `ghcr.io/<your-github-username>/we-mp-rss:latest`, then run the command above.
+Push your fork to `main`, wait for GitHub Actions to publish `ghcr.io/AngusLean/we-mp-rss:latest`, then run the command above.
 
 - Default port mapping is `8002:8001`
 - Default database is `SQLite`, with data stored in `./data`
@@ -273,5 +273,4 @@ The following are the environment variable configurations supported in `config.y
 | `LOG_FILE` | Empty | Log file path |
 | `LOG_LEVEL` | `INFO` | Log level |
 | `EXPORT_PDF` | `False` | Whether to enable PDF export functionality |
-
 
