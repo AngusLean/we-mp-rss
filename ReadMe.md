@@ -7,6 +7,20 @@
 
 [中文](README.zh-CN.md)|[English](ReadMe.md)
 
+One-line Compose Deploy From Your GitHub Fork
+```
+mkdir -p we-mp-rss && cd we-mp-rss && PASSWORD='change-this-password' WE_MP_RSS_IMAGE=ghcr.io/<your-github-username>/we-mp-rss:latest docker compose -f <(curl -fsSL https://raw.githubusercontent.com/<your-github-username>/we-mp-rss/main/compose/docker-compose-sqlite.yaml) up -d
+```
+
+Push your fork to `main`, wait for GitHub Actions to publish `ghcr.io/<your-github-username>/we-mp-rss:latest`, then run the command above.
+
+- Default port mapping is `8002:8001`
+- Default database is `SQLite`, with data stored in `./data`
+- Proxy is disabled by default and timezone defaults to `Asia/Shanghai`
+- If your NAS shell is only `/bin/sh`, start `bash` first and then run the command above
+
+Visit `http://<your-ip>:8002/`
+
 Quick Start
 ```
 docker run -d  --name we-mp-rss  -p 8001:8001 -v ./data:/app/data  ghcr.io/rachelos/we-mp-rss:latest
@@ -259,7 +273,5 @@ The following are the environment variable configurations supported in `config.y
 | `LOG_FILE` | Empty | Log file path |
 | `LOG_LEVEL` | `INFO` | Log level |
 | `EXPORT_PDF` | `False` | Whether to enable PDF export functionality |
-
-
 
 

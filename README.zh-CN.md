@@ -7,6 +7,20 @@
 
 [中文](README.zh-CN.md)|[English](ReadMe.md)
 
+NAS 一行 Compose 拉起自己的 GitHub Fork
+```
+mkdir -p we-mp-rss && cd we-mp-rss && PASSWORD='请改成你的强密码' WE_MP_RSS_IMAGE=ghcr.io/<你的 GitHub 用户名>/we-mp-rss:latest docker compose -f <(curl -fsSL https://raw.githubusercontent.com/<你的 GitHub 用户名>/we-mp-rss/main/compose/docker-compose-sqlite.yaml) up -d
+```
+
+先把你的 fork 推到 `main`，等待 GitHub Actions 自动发布镜像到 `ghcr.io/<你的 GitHub 用户名>/we-mp-rss:latest`，再执行上面的命令。
+
+- 默认端口是 `8002:8001`
+- 默认使用 `SQLite`，数据目录是当前目录下的 `./data`
+- 默认关闭代理，时区为 `Asia/Shanghai`
+- 如果 NAS 只有 `/bin/sh`，先进入 `bash` 再执行这条命令
+
+访问 `http://<您的ip>:8002/`
+
 快速运行
 ```
 docker run -d  --name we-mp-rss  -p 8001:8001 -v ./data:/app/data  ghcr.io/rachelos/we-mp-rss:latest
